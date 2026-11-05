@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Advertising landing page (mock)</title><link rel="stylesheet" href="../mock.css"></head>
+<body><div class="wrap">
+<h1>Mock advertising landing page</h1>
+<p class="sub">Test 2 &mdash; this tab should close by itself.</p>
+<div class="real-content">
+<p>This page stands in for an advertising landing page. It is served from this machine; no real
+ad network is involved.</p>
+<p>Two things make it a confirmed advertisement to the extension:</p>
+<ul>
+  <li>its path matches the <code>*/popunder*</code> rule, and</li>
+  <li>its host is registered as an example ad domain by <code>srg-test-config.json</code>.</li>
+</ul>
+<p>If you are still reading this after a second or two, check that protection and new-tab
+protection are both on, and that you imported the test config.</p>
+</div>
+<p class="expect"><b>Expected:</b> closed after the configured delay, with the opener tab
+re-activated. If the host was <em>not</em> registered as an ad domain, staying open is the correct
+behaviour instead &mdash; the URL pattern alone is medium confidence, and medium never closes a tab.</p>
+</div></body></html>

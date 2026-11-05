@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sign in</title><link rel="stylesheet" href="mock.css"></head>
+<body><div class="wrap">
+<h1>Sign in</h1>
+<p class="sub">Test 4 &mdash; authentication must never be interrupted.</p>
+<div class="real-content">
+<form onsubmit="return false">
+  <p><label for="u">Email</label><br><input id="u" type="email" autocomplete="username" style="width:100%;padding:8px"></p>
+  <p><label for="p">Password</label><br><input id="p" type="password" autocomplete="current-password" style="width:100%;padding:8px"></p>
+  <p><button type="submit">Sign in</button></p>
+</form>
+</div>
+<p class="expect"><b>Expected:</b> this page loads normally. The <code>/login</code> path is a hard
+veto, so even a URL that otherwise matched an ad rule would be left alone. The password field also
+makes this form permanently exempt from element blocking.</p>
+</div></body></html>

@@ -338,6 +338,11 @@
   /* Things that, if they live INSIDE an element, mean "do not touch it". */
   var CONTAINS_SELECTOR = [
     'input[type="password"]', 'video',
+    // Payment fields. A checkout form often has no password and no telltale action attribute,
+    // so match the autocomplete tokens the browser itself uses for card data.
+    'input[autocomplete^="cc-"]', 'input[autocomplete*="cc-number"]', 'input[autocomplete*="cc-csc"]',
+    'input[name*="card" i]', 'input[id*="card" i]', 'input[name*="cvv" i]', 'input[id*="cvv" i]',
+    'input[autocomplete="one-time-code"]',
     'form[action*="login" i]', 'form[action*="signin" i]', 'form[action*="auth" i]',
     'form[action*="checkout" i]', 'form[action*="payment" i]', 'form[action*="oauth" i]',
     'iframe[src*="recaptcha"]', 'iframe[src*="hcaptcha"]', '.g-recaptcha', '.h-captcha'

@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>An ordinary article</title><link rel="stylesheet" href="mock.css"></head>
+<body><div class="wrap">
+<nav class="sitenav"><a href="index.html">&larr; Back to the test index</a></nav>
+<h1>An ordinary article</h1>
+<p class="sub">Test 1 &mdash; the control case.</p>
+<div class="real-content">
+  <h2>Nothing to see here</h2>
+  <p>This page contains no advertising markup of any kind: no ad classes, no ad iframes, no
+  floating containers, no overlays.</p>
+  <p>With Smart Redirect Guard enabled it should look and behave exactly as it does with the
+  extension disabled, and it should produce no activity rows at all.</p>
+  <p><a href="index.html">Return to the index</a> &mdash; an ordinary internal link, which must
+  never be interfered with.</p>
+</div>
+<p class="expect"><b>Expected:</b> zero detections, zero hidden elements, zero closed tabs.</p>
+</div></body></html>

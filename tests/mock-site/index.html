@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SRG Mock Test Site</title>
+<link rel="stylesheet" href="mock.css">
+</head>
+<body>
+<div class="wrap">
+  <h1>Smart Redirect Guard &mdash; mock test site</h1>
+  <p class="sub">A local, self-contained page for exercising all three protection layers. No real
+  advertising network is ever contacted.</p>
+
+  <div class="note">
+    <strong>Serve this over HTTP, not <code>file://</code>.</strong>
+    From the project root run <code>python -m http.server 8080 --directory tests/mock-site</code>,
+    then open <code>http://localhost:8080/</code>.
+    The server answers on both <code>localhost</code> and <code>127.0.0.1</code>, and Chrome treats
+    those as two different sites &mdash; which is what makes the cross-site tests real.
+    <br><br>
+    For the tab-closing tests, first import <code>srg-test-config.json</code> (Dashboard &rarr;
+    Settings &rarr; Import). It registers <code>127.0.0.1</code> as an example ad domain so a tab
+    opened there is a confirmed high-confidence advertisement. Without it the extension correctly
+    refuses to close an unknown host &mdash; which is itself test 6.
+  </div>
+
+  <nav class="sitenav">
+    <a href="article.html">Article</a>
+    <a href="ads-static.html">Static ads</a>
+    <a href="ads-dynamic.html">Dynamic ads</a>
+    <a href="ads-iframe.html">Iframe ads</a>
+    <a href="legit-ui.html">Legitimate UI</a>
+  </nav>
+
+  <h2>Layer 1 &mdash; new-tab protection</h2>
+
+  <div class="card">
+    <h3>Test 2 &mdash; known advertising tab</h3>
+    <p>Opens a new tab on the other origin, on a path matching the <code>*/popunder*</code> rule.</p>
+    <button id="t2">Open known ad tab</button>
+    <p class="expect"><b>Expected:</b> the new tab is classified high confidence and closes after
+    the configured delay. This page stays open and becomes active again. "Tabs closed" increases.</p>
+  </div>
+
+  <div class="card">
+    <h3>Test 3 &mdash; legitimate external link</h3>
+    <p>A normal <code>target="_blank"</code> link to an ordinary page on the other origin.</p>
+    <a class="btn secondary" href="http://127.0.0.1:8080/external.html" target="_blank" rel="noopener">Open legitimate external link</a>
+    <p class="expect"><b>Expected:</b> the tab stays open. Cross-origin alone is not evidence of an
+    advertisement.</p>
+  </div>
+
+  <div class="card">
+    <h3>Test 6 &mdash; unknown domain</h3>
+    <p>Opens a tab on a host the extension has never seen and has no rule for.</p>
+    <button id="t6" class="secondary">Open unknown domain</button>
+    <p class="expect"><b>Expected:</b> <em>not</em> closed. An unfamiliar domain is not treated as
+    malicious. At most a low or medium activity row appears.</p>
+  </div>
+
+  <h2>Layer 2 &mdash; same-tab redirect protection</h2>
+
+  <div class="card">
+    <h3>Test 5 &mdash; suspicious same-tab redirect</h3>
+    <p>Replaces this page with a URL matching the <code>*/ad-redirect*</code> blocking rule.</p>
+    <button id="t5">Redirect this tab to an ad URL</button>
+    <p class="expect"><b>Expected (one of two, both correct):</b> the static rule blocks the request
+    before it leaves Chrome (<code>ERR_BLOCKED_BY_CLIENT</code>) and the event is logged as
+    <b>blocked</b>; or, if no rule covered it, the navigation completes and the popup offers
+    <b>Go back</b>. The extension never navigates back by itself.</p>
+  </div>
+
+  <div class="card">
+    <h3>Test 4 &mdash; login redirect</h3>
+    <p>Redirects this tab to a path containing <code>/login</code> on the other origin.</p>
+    <button id="t4" class="secondary">Simulate a login redirect</button>
+    <p class="expect"><b>Expected:</b> untouched. Authentication paths are a hard veto that
+    outranks every positive signal, so sign-in flows never break.</p>
+  </div>
+
+  <div class="card">
+    <h3>Test 14 &mdash; trusted site</h3>
+    <p>Add <code>localhost</code> as a trusted site (popup &rarr; Trust this site, "new tabs" scope),
+    then run test 2 again.</p>
+    <button id="t14" class="secondary">Re-run the ad-tab test</button>
+    <p class="expect"><b>Expected:</b> the tab now stays open, and the activity row shows the
+    trusted exemption. Remember to remove the trust afterwards.</p>
+  </div>
+
+  <h2>Layer 3 &mdash; element blocking</h2>
+  <div class="card">
+    <h3>Tests 7&ndash;11, 15</h3>
+    <p>Each page below targets a different element-level case.</p>
+    <p>
+      <a class="btn secondary" href="ads-static.html">7 &mdash; static floating ad</a>
+      <a class="btn secondary" href="ads-dynamic.html">8 &mdash; ad injected after 3s</a>
+      <a class="btn secondary" href="legit-ui.html">9, 10 &mdash; modal &amp; cookie bar</a>
+      <a class="btn secondary" href="ads-iframe.html">15 &mdash; cross-origin iframe</a>
+    </p>
+  </div>
+
+  <h2>Control tests</h2>
+  <div class="card">
+    <h3>Test 1 &mdash; normal navigation</h3>
+    <p><a href="article.html">Open an ordinary internal article.</a></p>
+    <p class="expect"><b>Expected:</b> nothing is closed, nothing is hidden, no activity row.</p>
+  </div>
+  <div class="card">
+    <h3>Tests 12 &amp; 13 &mdash; worker restart and protection off</h3>
+    <p>For test 12, open <code>chrome://extensions</code>, click the extension's
+    <em>service worker</em> link, stop it, then re-run test 2. For test 13, switch protection off
+    in the popup and re-run tests 2, 5 and 7.</p>
+    <p class="expect"><b>Expected:</b> test 12 behaves identically; test 13 takes no protective
+    action at all.</p>
+  </div>
+
+  <p class="status" id="status" role="status" aria-live="polite"></p>
+</div>
+<script src="mock.js"></script>
+</body>
+</html>

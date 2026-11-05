@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cross-origin iframe advertisements</title><link rel="stylesheet" href="mock.css"></head>
+<body><div class="wrap">
+<nav class="sitenav"><a href="index.html">&larr; Back to the test index</a></nav>
+<h1>Advertisements inside a cross-origin iframe</h1>
+<p class="sub">Test 15 &mdash; the hard limit of what any extension can do.</p>
+
+<div class="real-content">
+  <p>Below are two frames. The first is same-origin, the second is loaded from the other local
+  origin and is therefore cross-origin.</p>
+  <p>Our content script can read and modify the DOM <em>inside</em> the same-origin frame. It can
+  never read inside the cross-origin one: the browser's same-origin policy forbids it and no
+  extension permission changes that. What the extension can still do is judge the iframe
+  <strong>element</strong> from this page &mdash; its <code>src</code> host, its size and its
+  position &mdash; and hide the whole frame if the host matches a rule, or let
+  <code>declarativeNetRequest</code> block the request so the frame never loads at all.</p>
+</div>
+
+<h2>Same-origin frame</h2>
+<iframe id="same" src="ads/banner.html" width="100%" height="90" title="Same-origin mock ad"></iframe>
+
+<h2>Cross-origin frame</h2>
+<iframe id="cross" src="" width="100%" height="90" title="Cross-origin mock ad"></iframe>
+
+<p class="expect"><b>Expected:</b> URL-level handling only. If the frame's host is on the ad list
+the iframe element is hidden from this page; otherwise it stays. The extension must not claim to
+have inspected the cross-origin frame's contents, and must not throw a same-origin error.</p>
+</div>
+<script>
+(function () {
+  var other = (location.hostname === 'localhost' ? 'http://127.0.0.1' : 'http://localhost')
+    + ':' + (location.port || '8080');
+  document.getElementById('cross').src = other + '/ads/banner.html';
+})();
+</script>
+</body></html>

@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Static advertisements</title><link rel="stylesheet" href="mock.css"></head>
+<body><div class="wrap">
+<nav class="sitenav"><a href="index.html">&larr; Back to the test index</a></nav>
+<h1>Advertisements present at page load</h1>
+<p class="sub">Test 7 &mdash; floating, sticky and overlay advertisements that exist in the
+initial HTML.</p>
+
+<div class="sticky-promo">STICKY PROMOTIONAL BAR &mdash; medium confidence</div>
+
+<div class="ad-banner">IN-FLOW AD BANNER &mdash; high confidence (<code>.ad-banner</code>)</div>
+
+<div class="real-content">
+  <h2>The real article</h2>
+  <p>This paragraph is the legitimate page content. It must survive untouched, with its layout
+  intact, no matter how many advertisements around it are hidden.</p>
+  <p>Hiding uses <code>display:none !important</code> and records the element's original inline
+  styles, so every one of these can be brought back from the dashboard's
+  <b>Hidden elements</b> tab.</p>
+  <button id="overlay">Show a full-screen ad overlay</button>
+</div>
+
+<div class="advertisement-popup" style="margin-top:14px">
+  Special Offer! <button>Buy Now</button>
+  <div><small>This is the exact example from the project specification.</small></div>
+</div>
+
+<div class="floating-banner">FLOATING AD BANNER &mdash; medium confidence (<code>.floating-banner</code>, fixed to the viewport)</div>
+
+<p class="expect"><b>Expected:</b> the two elements named with explicit ad classes
+(<code>.ad-banner</code> and <code>.advertisement-popup</code>) are hidden at high confidence.
+The floating banner and the sticky promotional bar match <em>medium</em> selectors, so with the
+default settings they are only logged, not hidden &mdash; set
+<b>Settings &rarr; Element layer &rarr; Medium confidence</b> to "hide" to see them disappear too,
+and use <b>Hidden elements</b> to bring them back. The article text is untouched either way.</p>
+</div>
+<script>
+ document.getElementById('overlay').addEventListener('click', function () {
+   var o = document.createElement('div');
+   o.className = 'ad-overlay';
+   var t = document.createElement('div'); t.textContent = 'FULL-SCREEN AD OVERLAY';
+   var b = document.createElement('button'); b.textContent = 'Close';
+   b.addEventListener('click', function () { o.remove(); });
+   o.appendChild(t); o.appendChild(b); document.body.appendChild(o);
+ });
+</script>
+</body></html>

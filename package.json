@@ -1,0 +1,12 @@
+{
+  "name": "smart-redirect-guard",
+  "version": "0.2.0",
+  "private": true,
+  "description": "Local test harness for the Smart Redirect Guard Chrome extension. The extension itself ships zero dependencies; jsdom is used only to run the content-script logic outside a browser.",
+  "scripts": {
+    "test": "node tests/test-rules.js"
+  },
+  "devDependencies": {
+    "jsdom": "26.1.0"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "settings": {
+    "masterEnabled": true,
+    "tab": { "enabled": true, "closeDelayMs": 1000, "reactivateOpener": true },
+    "redirect": { "enabled": true, "dnrBlocking": true, "offerRecovery": true, "rememberSafeUrl": true },
+    "element": { "enabled": true, "hideHighConfidence": true, "mediumAction": "log", "cosmeticCss": true }
+  },
+  "trusted": [],
+  "customRules": {
+    "adDomains": ["127.0.0.1"],
+    "suspiciousDomains": [],
+    "urlPatterns": ["*/popunder*", "*/ad-redirect*"],
+    "selectors": [],
+    "allowSelectors": []
+  }
+}

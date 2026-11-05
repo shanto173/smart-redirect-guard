@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dynamically injected advertisements</title><link rel="stylesheet" href="mock.css"></head>
+<body><div class="wrap">
+<nav class="sitenav"><a href="index.html">&larr; Back to the test index</a></nav>
+<h1>Advertisements injected after the page loads</h1>
+<p class="sub">Test 8 &mdash; a one-off page-load scan would miss every one of these.</p>
+
+<div class="real-content">
+  <p>Three advertisements will be injected on a timer. A countdown is shown below. This mimics
+  sites that load their content first and inject advertising seconds later.</p>
+  <p id="log" class="status">Waiting...</p>
+  <button id="again">Inject another one now</button>
+</div>
+
+<div id="slot"></div>
+
+<p class="expect"><b>Expected:</b> each injected advertisement is detected by the
+<code>MutationObserver</code> and hidden within roughly a second of appearing &mdash; the observer
+debounces for about 150&nbsp;ms and runs its batch in idle time. The counter in the popup rises
+each time. Nothing else on the page is affected.</p>
+</div>
+<script>
+(function () {
+  var slot = document.getElementById('slot');
+  var log = document.getElementById('log');
+  var n = 0;
+
+  function inject(kind) {
+    n++;
+    var d = document.createElement('div');
+    if (kind === 'banner') { d.className = 'ad-banner'; d.textContent = 'INJECTED AD BANNER #' + n; }
+    else if (kind === 'float') { d.className = 'floating-banner'; d.textContent = 'INJECTED FLOATING AD #' + n; }
+    else { d.className = 'advertisement-popup'; d.textContent = 'INJECTED AD POPUP #' + n; }
+    slot.appendChild(d);
+    log.textContent = 'Injected advertisement #' + n + ' at ' + new Date().toLocaleTimeString();
+  }
+
+  var t = 3;
+  log.textContent = 'First advertisement arrives in ' + t + 's...';
+  var iv = setInterval(function () {
+    t--;
+    if (t > 0) { log.textContent = 'First advertisement arrives in ' + t + 's...'; return; }
+    clearInterval(iv);
+    inject('banner');
+    setTimeout(function () { inject('float'); }, 2000);
+    setTimeout(function () { inject('popup'); }, 4000);
+  }, 1000);
+
+  document.getElementById('again').addEventListener('click', function () { inject('banner'); });
+})();
+</script>
+</body></html>

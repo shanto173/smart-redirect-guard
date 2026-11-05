@@ -1,0 +1,13 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A legitimate external page</title><link rel="stylesheet" href="mock.css"></head>
+<body><div class="wrap">
+<h1>A legitimate external page</h1>
+<p class="sub">Test 3 &mdash; this tab must stay open.</p>
+<div class="real-content">
+<p>You reached this page through an ordinary <code>target="_blank"</code> link from the other
+origin. It is cross-site, which some naive blockers treat as suspicious on its own.</p>
+<p>Smart Redirect Guard must <strong>not</strong> close this tab: there is no ad-domain match and
+no ad URL pattern, so the verdict is low confidence and nothing happens.</p>
+</div></div></body></html>

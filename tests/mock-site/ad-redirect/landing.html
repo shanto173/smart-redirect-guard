@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Redirected advertising page (mock)</title><link rel="stylesheet" href="../mock.css"></head>
+<body><div class="wrap">
+<h1>You were redirected here</h1>
+<p class="sub">Test 5 &mdash; if you can read this, the request was not blocked.</p>
+<div class="real-content">
+<p>The original page has been replaced. This is the same-tab redirect problem.</p>
+<p>Seeing this page is <strong>not</strong> a test failure. It means no static rule covered the
+destination, so the navigation committed &mdash; and Manifest V3 offers no way to cancel a
+navigation after the fact. The extension's job now is to <em>detect</em> it and offer recovery.</p>
+<p>Open the extension popup: it should show a recovery banner naming the page you came from, with
+a <b>Go back</b> button.</p>
+</div>
+<p class="expect"><b>Expected:</b> either this page never loads
+(<code>ERR_BLOCKED_BY_CLIENT</code>, logged as blocked), or it loads and recovery is offered.
+What must <em>not</em> happen is the extension silently navigating you backwards.</p>
+</div></body></html>

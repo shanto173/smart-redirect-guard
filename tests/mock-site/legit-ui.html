@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Legitimate interface elements</title><link rel="stylesheet" href="mock.css">
+<style>
+ .cc-window{position:fixed;left:0;right:0;bottom:0;z-index:9999;background:#212529;color:#fff;
+   padding:16px;display:flex;gap:12px;align-items:center;justify-content:center;flex-wrap:wrap}
+ .cc-window button{background:#fff;color:#212529;border-color:#fff}
+ .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:10000;
+   display:flex;align-items:center;justify-content:center}
+ .modal-dialog{background:var(--panel);color:var(--ink);padding:22px;border-radius:10px;
+   min-width:300px;max-width:90vw}
+</style></head>
+<body><div class="wrap">
+<nav class="sitenav"><a href="index.html">&larr; Back to the test index</a></nav>
+<h1>Legitimate interface elements</h1>
+<p class="sub">Tests 9 and 10 &mdash; everything on this page must keep working.</p>
+
+<div class="real-content">
+  <p>Each control below looks superficially like an advertisement to a naive detector: it floats,
+  it is fixed, it has a high z-index, it covers part of the viewport, and some of it appears after
+  the page has loaded. None of it may be hidden.</p>
+  <p>
+    <button id="openModal">Open a modal dialog</button>
+    <button id="showConsent" class="secondary">Bring the cookie bar back</button>
+    <button id="lateToast" class="secondary">Show a late notification</button>
+  </p>
+
+  <h2>Payment form</h2>
+  <form onsubmit="return false" style="max-width:340px">
+    <p><label for="card">Card number</label><br>
+       <input id="card" inputmode="numeric" autocomplete="cc-number" style="width:100%;padding:8px"></p>
+    <p><label for="cvv">CVV</label><br>
+       <input id="cvv" inputmode="numeric" autocomplete="cc-csc" style="width:90px;padding:8px"></p>
+    <p><button type="submit">Pay now</button></p>
+  </form>
+
+  <h2>Video player</h2>
+  <video controls width="320" height="180" style="background:#000"></video>
+</div>
+
+<div class="cc-window" id="consent" role="region" aria-label="Cookie consent">
+  <span>We use cookies to run this site. Manage preferences or accept cookies to continue.</span>
+  <button id="acceptCookies">Accept cookies</button>
+  <button id="rejectCookies" class="secondary" style="color:#fff;border-color:#fff">Reject</button>
+</div>
+
+<p class="expect"><b>Expected:</b> the cookie bar, the modal, the payment form, the video player
+and the late notification all remain visible and fully usable. The cookie bar and the dialog are
+matched by allow selectors; the payment form is protected because it contains form inputs; the
+video player is protected because it contains a <code>&lt;video&gt;</code>. These are hard vetoes
+applied before any scoring happens.</p>
+</div>
+<script>
+(function () {
+  var consent = document.getElementById('consent');
+  function hideConsent() { consent.style.display = 'none'; }
+  document.getElementById('acceptCookies').addEventListener('click', hideConsent);
+  document.getElementById('rejectCookies').addEventListener('click', hideConsent);
+  document.getElementById('showConsent').addEventListener('click', function () {
+    consent.style.display = 'flex';
+  });
+
+  document.getElementById('openModal').addEventListener('click', function () {
+    var back = document.createElement('div');
+    back.className = 'modal-backdrop';
+    var dlg = document.createElement('div');
+    dlg.className = 'modal-dialog';
+    dlg.setAttribute('role', 'dialog');
+    dlg.setAttribute('aria-modal', 'true');
+    dlg.setAttribute('aria-label', 'Confirm action');
+    var h = document.createElement('h2'); h.textContent = 'Confirm action';
+    var p = document.createElement('p');
+    p.textContent = 'This is an ordinary application dialog. It is fixed, centred, covers the '
+      + 'viewport and has a very high z-index - and it must stay visible.';
+    var ok = document.createElement('button'); ok.textContent = 'OK';
+    ok.addEventListener('click', function () { back.remove(); });
+    dlg.appendChild(h); dlg.appendChild(p); dlg.appendChild(ok);
+    back.appendChild(dlg); document.body.appendChild(back);
+  });
+
+  document.getElementById('lateToast').addEventListener('click', function () {
+    setTimeout(function () {
+      var t = document.createElement('div');
+      t.setAttribute('role', 'status');
+      t.className = 'notification';
+      t.style.cssText = 'position:fixed;right:16px;bottom:16px;z-index:10001;background:#2b8a3e;'
+        + 'color:#fff;padding:12px 16px;border-radius:8px';
+      t.textContent = 'Your changes have been saved.';
+      document.body.appendChild(t);
+      setTimeout(function () { t.remove(); }, 6000);
+    }, 1200);
+  });
+})();
+</script>
+</body></html>
