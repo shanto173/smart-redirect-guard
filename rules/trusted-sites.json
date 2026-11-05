@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "sites": [
+    { "domain": "accounts.google.com", "scope": { "tab": true, "redirect": true, "element": true }, "reason": "authentication (Google sign-in)" },
+    { "domain": "login.microsoftonline.com", "scope": { "tab": true, "redirect": true, "element": true }, "reason": "authentication (Microsoft work/school sign-in)" },
+    { "domain": "login.live.com", "scope": { "tab": true, "redirect": true, "element": true }, "reason": "authentication (Microsoft personal sign-in)" },
+    { "domain": "appleid.apple.com", "scope": { "tab": true, "redirect": true, "element": true }, "reason": "authentication (Apple ID)" },
+    { "domain": "github.com", "scope": { "tab": true, "redirect": true, "element": true }, "reason": "developer platform, OAuth and downloads" },
+    { "domain": "paypal.com", "scope": { "tab": true, "redirect": true, "element": true }, "reason": "payment" },
+    { "domain": "checkout.stripe.com", "scope": { "tab": true, "redirect": true, "element": true }, "reason": "payment (hosted checkout)" },
+    { "domain": "auth0.com", "scope": { "tab": true, "redirect": true, "element": true }, "reason": "authentication (identity provider)" },
+    { "domain": "okta.com", "scope": { "tab": true, "redirect": true, "element": true }, "reason": "authentication (single sign-on)" },
+    { "domain": "duosecurity.com", "scope": { "tab": true, "redirect": true, "element": true }, "reason": "two-factor authentication" },
+    { "domain": "id.atlassian.com", "scope": { "tab": true, "redirect": true, "element": true }, "reason": "authentication (Atlassian account)" },
+    { "domain": "bankid.com", "scope": { "tab": true, "redirect": true, "element": true }, "reason": "authentication (BankID e-identification)" }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "manifest_version": 3,
+  "name": "Smart Redirect Guard",
+  "version": "0.2.0",
+  "description": "Closes ad-only tabs, guards against forced redirects and hides ad elements, with restore options and per-site trust. Everything runs locally.",
+  "minimum_chrome_version": "110",
+  "background": {
+    "service_worker": "background/service-worker.js"
+  },
+  "permissions": [
+    "tabs",
+    "webNavigation",
+    "storage",
+    "declarativeNetRequest",
+    "declarativeNetRequestFeedback",
+    "alarms"
+  ],
+  "declarative_net_request": {
+    "rule_resources": [
+      {
+        "id": "srg-static",
+        "enabled": true,
+        "path": "rules/rules.json"
+      }
+    ]
+  },
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*"],
+      "js": [
+        "shared/element-scoring.js",
+        "content/element-detector.js",
+        "content/element-blocker.js",
+        "content/mutation-observer.js",
+        "content/content.js"
+      ],
+      "run_at": "document_start",
+      "all_frames": true
+    }
+  ],
+  "action": {
+    "default_title": "Smart Redirect Guard",
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "options_page": "dashboard/dashboard.html"
+}
