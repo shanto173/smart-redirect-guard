@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Smart Redirect Guard Dashboard</title>
+  <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+  <div class="page">
+    <header class="top">
+      <div class="brand">
+        <svg class="shield" viewBox="0 0 24 24" width="34" height="34" aria-hidden="true" focusable="false">
+          <path d="M12 2.5 4.5 5.4v5.6c0 4.6 3.1 8.7 7.5 10.5 4.4-1.8 7.5-5.9 7.5-10.5V5.4L12 2.5z" fill="currentColor" opacity="0.18"/>
+          <path d="M12 2.5 4.5 5.4v5.6c0 4.6 3.1 8.7 7.5 10.5 4.4-1.8 7.5-5.9 7.5-10.5V5.4L12 2.5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+          <path d="m8.6 12.1 2.4 2.4 4.4-4.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <div>
+          <h1>Smart Redirect Guard</h1>
+          <p class="sub">Everything runs on this computer. Nothing is sent anywhere.</p>
+        </div>
+      </div>
+      <div id="status" class="toast" role="status" aria-live="polite"></div>
+    </header>
+
+    <div id="page-error" class="banner banner-bad" role="alert" hidden>
+      <span id="page-error-text"></span>
+      <button type="button" id="btn-retry" class="btn btn-small">Try again</button>
+    </div>
+
+    <div class="tabs" role="tablist" aria-label="Dashboard sections">
+      <button type="button" class="tab" role="tab" id="tab-overview" data-panel="overview" aria-selected="true" aria-controls="panel-overview">Overview</button>
+      <button type="button" class="tab" role="tab" id="tab-activity" data-panel="activity" aria-selected="false" aria-controls="panel-activity" tabindex="-1">Activity</button>
+      <button type="button" class="tab" role="tab" id="tab-settings" data-panel="settings" aria-selected="false" aria-controls="panel-settings" tabindex="-1">Settings</button>
+      <button type="button" class="tab" role="tab" id="tab-trusted" data-panel="trusted" aria-selected="false" aria-controls="panel-trusted" tabindex="-1">Trusted sites</button>
+      <button type="button" class="tab" role="tab" id="tab-hidden" data-panel="hidden" aria-selected="false" aria-controls="panel-hidden" tabindex="-1">Hidden elements</button>
+      <button type="button" class="tab" role="tab" id="tab-rules" data-panel="rules" aria-selected="false" aria-controls="panel-rules" tabindex="-1">Custom rules</button>
+    </div>
+
+    <!-- OVERVIEW -->
+    <section id="panel-overview" class="panel" role="tabpanel" aria-labelledby="tab-overview">
+      <h2>Overview</h2>
+      <div class="cards">
+        <div class="stat-card"><div class="stat-num" id="stat-tabsClosed">0</div><div class="stat-label">Tabs closed</div></div>
+        <div class="stat-card"><div class="stat-num" id="stat-redirectsBlocked">0</div><div class="stat-label">Redirects blocked</div></div>
+        <div class="stat-card"><div class="stat-num" id="stat-redirectsDetected">0</div><div class="stat-label">Redirects detected</div></div>
+        <div class="stat-card"><div class="stat-num" id="stat-elementsHidden">0</div><div class="stat-label">Elements hidden</div></div>
+      </div>
+      <p class="muted" id="stat-since"></p>
+      <div class="box">
+        <h3>Current protection</h3>
+        <p id="status-summary">Loading...</p>
+      </div>
+      <div class="actions">
+        <button type="button" id="btn-reset" class="btn">Reset statistics</button>
+        <span id="reset-confirm" class="confirm" role="group" aria-label="Confirm reset" hidden>
+          <span>Are you sure? The counters go back to zero.</span>
+          <button type="button" id="reset-yes" class="btn btn-danger btn-small">Yes</button>
+          <button type="button" id="reset-no" class="btn btn-small">Cancel</button>
+        </span>
+      </div>
+    </section>
+
+    <!-- ACTIVITY -->
+    <section id="panel-activity" class="panel" role="tabpanel" aria-labelledby="tab-activity" hidden>
+      <h2>Activity</h2>
+      <div class="filters">
+        <label class="field">Domain
+          <input type="search" id="f-domain" placeholder="Filter by domain" autocomplete="off">
+        </label>
+        <label class="field">Layer
+          <select id="f-layer">
+            <option value="">All layers</option>
+            <option value="tab">New tab</option>
+            <option value="redirect">Redirect</option>
+            <option value="element">Element</option>
+          </select>
+        </label>
+        <label class="field">Confidence
+          <select id="f-conf">
+            <option value="">All levels</option>
+            <option value="high">High</option>
+            <option value="medium">Medium</option>
+            <option value="low">Low</option>
+          </select>
+        </label>
+      </div>
+      <div class="actions">
+        <span class="muted" id="activity-count"></span>
+        <button type="button" id="btn-activity-refresh" class="btn btn-small">Refresh</button>
+        <button type="button" id="btn-clear" class="btn btn-small">Clear history</button>
+        <span id="clear-confirm" class="confirm" role="group" aria-label="Confirm clearing history" hidden>
+          <span>Are you sure? This deletes the whole activity list.</span>
+          <button type="button" id="clear-yes" class="btn btn-danger btn-small">Yes</button>
+          <button type="button" id="clear-no" class="btn btn-small">Cancel</button>
+        </span>
+      </div>
+      <p id="activity-empty" class="empty" hidden></p>
+      <table id="activity-table" class="table" hidden>
+        <thead><tr><th>Time</th><th>Domain</th><th>Layer</th><th>Type</th><th>Action</th><th>Confidence</th></tr></thead>
+        <tbody id="activity-body"></tbody>
+      </table>
+    </section>
+
+    <!-- SETTINGS -->
+    <section id="panel-settings" class="panel" role="tabpanel" aria-labelledby="tab-settings" hidden>
+      <h2>Settings</h2>
+      <div id="settings-root"></div>
+      <div class="box">
+        <h3>Backup</h3>
+        <p class="muted">Export saves your settings, trusted sites and custom rules to a file. It never includes your activity history.</p>
+        <div class="actions">
+          <button type="button" id="btn-export" class="btn">Export settings</button>
+          <button type="button" id="btn-import" class="btn">Import settings</button>
+          <input type="file" id="import-file" class="visually-hidden" accept="application/json,.json">
+        </div>
+        <p id="import-result" class="muted" role="status" aria-live="polite"></p>
+      </div>
+    </section>
+
+    <!-- TRUSTED SITES -->
+    <section id="panel-trusted" class="panel" role="tabpanel" aria-labelledby="tab-trusted" hidden>
+      <h2>Trusted sites</h2>
+      <div class="box">
+        <h3>What trusting a site does</h3>
+        <p>Trusting a site makes SRG leave that site alone, but only for the layers you choose. Nothing is switched off silently.</p>
+        <ul>
+          <li><b>New tabs:</b> SRG will not close tabs that the site opens. Other sites are unaffected.</li>
+          <li><b>Redirects:</b> SRG will not block, flag or offer to undo redirects on the site.</li>
+          <li><b>Element blocking:</b> SRG will not hide anything on the site's pages.</li>
+        </ul>
+        <p>Any layer you leave unticked keeps protecting you on that site. Trust applies to the domain and its subdomains. Trusting never turns off protection on other websites.</p>
+      </div>
+      <form id="trust-form" class="box" novalidate>
+        <h3>Add a trusted site</h3>
+        <label class="field">Domain
+          <input type="text" id="add-domain" placeholder="example.com" autocomplete="off" spellcheck="false" aria-describedby="add-msg">
+        </label>
+        <fieldset class="checks">
+          <legend>Leave alone</legend>
+          <label class="check"><input type="checkbox" id="add-tab" checked> New tabs</label>
+          <label class="check"><input type="checkbox" id="add-redirect" checked> Redirects</label>
+          <label class="check"><input type="checkbox" id="add-element" checked> Element blocking</label>
+        </fieldset>
+        <label class="field">For how long
+          <select id="add-duration">
+            <option value="0">Permanent</option>
+            <option value="3600000">1 hour</option>
+            <option value="86400000">1 day</option>
+          </select>
+        </label>
+        <div class="actions">
+          <button type="submit" id="btn-add-trusted" class="btn btn-primary">Add site</button>
+          <span id="add-msg" class="muted" role="status" aria-live="polite"></span>
+        </div>
+      </form>
+      <p id="trusted-empty" class="empty" hidden>No trusted sites yet.</p>
+      <table id="trusted-table" class="table" hidden>
+        <thead><tr><th>Domain</th><th>Left alone</th><th>Added</th><th>Expires</th><th><span class="visually-hidden">Actions</span></th></tr></thead>
+        <tbody id="trusted-body"></tbody>
+      </table>
+    </section>
+
+    <!-- HIDDEN ELEMENTS -->
+    <section id="panel-hidden" class="panel" role="tabpanel" aria-labelledby="tab-hidden" hidden>
+      <h2>Hidden elements</h2>
+      <p>This list only covers the one open tab you pick below. Hidden elements live inside the page itself, so they disappear from this list when the page reloads.</p>
+      <div class="filters">
+        <label class="field grow">Open tab
+          <select id="hidden-tab-select"></select>
+        </label>
+      </div>
+      <div class="actions">
+        <button type="button" id="btn-refresh-tabs" class="btn btn-small">Refresh tabs</button>
+        <button type="button" id="btn-rescan" class="btn btn-small">Re-scan page</button>
+        <button type="button" id="btn-restore-all" class="btn btn-small">Restore all</button>
+      </div>
+      <p id="hidden-msg" class="muted" role="status" aria-live="polite"></p>
+      <table id="hidden-table" class="table" hidden>
+        <thead><tr><th>Element</th><th>Confidence</th><th>Reason</th><th><span class="visually-hidden">Actions</span></th></tr></thead>
+        <tbody id="hidden-body"></tbody>
+      </table>
+    </section>
+
+    <!-- CUSTOM RULES -->
+    <section id="panel-rules" class="panel" role="tabpanel" aria-labelledby="tab-rules" hidden>
+      <h2>Custom rules</h2>
+      <div class="banner banner-warn">
+        The built-in lists are illustrative examples on reserved <code>.test</code> domains. They are not a curated filter list, and SRG never downloads a remote list. Add your own entries here, one per line.
+      </div>
+      <div id="rules-root"></div>
+      <div class="actions">
+        <button type="button" id="btn-save-rules" class="btn btn-primary">Save rules</button>
+        <span id="rules-msg" class="muted" role="status" aria-live="polite"></span>
+      </div>
+      <div id="rules-errors" class="banner banner-bad" role="alert" hidden></div>
+    </section>
+  </div>
+  <script src="dashboard.js"></script>
+</body>
+</html>

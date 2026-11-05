@@ -20,7 +20,13 @@ All messages are `{ type, payload? }` and travel over `chrome.runtime.sendMessag
 
 | type | payload | reply |
 |---|---|---|
-| `SRG_GET_CONFIG` | `{ url, frameId }` | `{ ok, enabled, settings, selectors, allowSelectors, adIframeHosts, trusted }` |
+| `SRG_GET_CONFIG` | `{ url, frameId }` | `{ ok, enabled, trusted, settings, selectors[], highTokens[], mediumSelectors[], mediumTokens[], allowSelectors[], textHints[], adIframeHosts[], adDomains[], urlPatterns[] }` |
+
+> **The config reply is deliberately FLAT**: every list is a plain string array, named exactly as
+> `SRG.detector.configure()` reads it, so the content script never reshapes rule data and there is
+> only one place where the field names have to agree. An earlier version nested them under
+> `selectors.high.*`, which silently dropped every user-defined selector; test `INT2`/`INT3` in
+> `tests/test-rules.js` now guards against that regression.
 | `SRG_REPORT_HIDDEN` | `{ url, items: [{sid, label, confidence, reason}] }` | `{ ok }` |
 | `SRG_REPORT_ELEMENT_RESTORED` | `{ url, sid }` | `{ ok }` |
 | `SRG_LOG_ACTIVITY` | `{ domain, layer, type, action, confidence, detail }` | `{ ok }` |
@@ -60,6 +66,24 @@ All messages are `{ type, payload? }` and travel over `chrome.runtime.sendMessag
 
 Worker→content sends must tolerate "Receiving end does not exist" (no content script on
 `chrome://`, PDF viewer, etc.) — always catch and ignore.
+
+### Error replies (authoritative; the code is the source of truth)
+
+Every handler replies exactly once. A failure is `{ ok: false, error: "<code>" }`, and any handler
+that throws replies `{ ok: false, error: "<message>" }`. Known codes:
+
+| Code | Raised by | Meaning |
+|---|---|---|
+| `no-content-script` | the four hidden-element messages | the tab has no SRG content script (a `chrome://` page, the PDF viewer, the web store) |
+| `bad-tab` | the four hidden-element messages | the tab id is missing or no longer exists |
+| `invalid-domain` | `SRG_ADD_TRUSTED` | the domain failed validation |
+| `not-an-srg-export` / `unsupported-schema` / `write-failed` | `SRG_IMPORT_CONFIG` | the imported file is not an SRG export, is from a newer schema, or could not be stored |
+
+Two reply shapes worth knowing:
+* `SRG_RECOVER_TAB` replies `{ ok: !!url, url }` — on failure that is `{ ok:false, url:null }` with
+  no `error` field, so callers treat any `ok:false` as "could not go back".
+* `SRG_GET_STATE`'s `activeTab.trusted` is true when **any one** layer is trusted for that domain,
+  not all three. UI that shows a "Trusted site" badge should say which layers, not imply all.
 
 ---
 

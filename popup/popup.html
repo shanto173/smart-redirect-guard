@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Smart Redirect Guard</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <main id="app" class="app" aria-busy="true">
+    <header class="top">
+      <div class="brand">
+        <svg class="shield" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" focusable="false">
+          <path d="M12 2.5 4.5 5.4v5.6c0 4.6 3.1 8.7 7.5 10.5 4.4-1.8 7.5-5.9 7.5-10.5V5.4L12 2.5z" fill="currentColor" opacity="0.18"/>
+          <path d="M12 2.5 4.5 5.4v5.6c0 4.6 3.1 8.7 7.5 10.5 4.4-1.8 7.5-5.9 7.5-10.5V5.4L12 2.5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+          <path d="m8.6 12.1 2.4 2.4 4.4-4.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <h1>Smart Redirect Guard</h1>
+      </div>
+      <span id="status-pill" class="pill pill-loading" role="status"><span class="dot" aria-hidden="true"></span><span id="pill-text">Loading</span></span>
+    </header>
+
+    <div id="error-banner" class="error-banner" role="alert" hidden>
+      <span id="error-text">Could not reach the extension.</span>
+      <button type="button" id="btn-retry" class="btn btn-small">Try again</button>
+    </div>
+
+    <section id="recovery" class="recovery" aria-label="Redirect recovery" hidden>
+      <div class="recovery-text">
+        <strong>Redirected away</strong>
+        <span id="recovery-text"></span>
+      </div>
+      <button type="button" id="btn-recover" class="btn btn-primary">Go back</button>
+    </section>
+
+    <section class="card" aria-label="Protection settings">
+      <div class="row row-master">
+        <div class="row-text">
+          <div class="row-title" id="lbl-master">Protection</div>
+          <div class="row-desc" id="desc-master">Turns everything on or off</div>
+        </div>
+        <button type="button" class="switch" id="sw-master" role="switch" aria-checked="false" aria-labelledby="lbl-master" aria-describedby="desc-master"><span class="knob"></span></button>
+      </div>
+      <div id="layers" class="layers">
+        <div class="row">
+          <div class="row-text">
+            <div class="row-title" id="lbl-tab">New-tab protection</div>
+            <div class="row-desc" id="desc-tab">Closes confirmed advertising tabs</div>
+          </div>
+          <button type="button" class="switch" id="sw-tab" role="switch" aria-checked="false" aria-labelledby="lbl-tab" aria-describedby="desc-tab"><span class="knob"></span></button>
+        </div>
+        <div class="row">
+          <div class="row-text">
+            <div class="row-title" id="lbl-redirect">Redirect protection</div>
+            <div class="row-desc" id="desc-redirect">Blocks known ad redirects, offers undo</div>
+          </div>
+          <button type="button" class="switch" id="sw-redirect" role="switch" aria-checked="false" aria-labelledby="lbl-redirect" aria-describedby="desc-redirect"><span class="knob"></span></button>
+        </div>
+        <div class="row">
+          <div class="row-text">
+            <div class="row-title" id="lbl-element">Element blocking</div>
+            <div class="row-desc" id="desc-element">Hides ads inside the page</div>
+          </div>
+          <button type="button" class="switch" id="sw-element" role="switch" aria-checked="false" aria-labelledby="lbl-element" aria-describedby="desc-element"><span class="knob"></span></button>
+        </div>
+      </div>
+      <p id="master-off-note" class="note" hidden>Protection is off, so the switches above have no effect right now.</p>
+    </section>
+
+    <section class="stats" aria-label="Statistics">
+      <div class="stat"><div class="stat-num" id="stat-tabs">0</div><div class="stat-label">Tabs closed</div></div>
+      <div class="stat"><div class="stat-num" id="stat-redirects">0</div><div class="stat-label">Redirects caught</div></div>
+      <div class="stat"><div class="stat-num" id="stat-elements">0</div><div class="stat-label">Elements hidden</div></div>
+    </section>
+
+    <section class="card trust" aria-label="Trust this site">
+      <div id="trust-unsupported" class="note" hidden>SRG does not run on this kind of page.</div>
+      <div id="trust-main">
+        <div class="trust-head">
+          <div class="row-text">
+            <div class="row-title">This site</div>
+            <div class="row-desc" id="trust-domain">-</div>
+          </div>
+          <button type="button" id="trust-btn" class="btn" aria-expanded="false" aria-controls="trust-panel">Trust this site</button>
+        </div>
+        <div id="trust-panel" class="trust-panel" hidden>
+          <fieldset>
+            <legend>Choose what SRG should leave alone on this site</legend>
+            <label class="check"><input type="checkbox" id="trust-tab" checked><span><b>New tabs</b> - SRG will not close tabs this site opens.</span></label>
+            <label class="check"><input type="checkbox" id="trust-redirect" checked><span><b>Redirects</b> - SRG will not block or flag redirects on this site.</span></label>
+            <label class="check"><input type="checkbox" id="trust-element" checked><span><b>Element blocking</b> - SRG will not hide anything on this site's pages.</span></label>
+            <label class="check check-sep"><input type="checkbox" id="trust-hour"><span>Only for 1 hour (otherwise until you remove it)</span></label>
+          </fieldset>
+          <p id="trust-summary" class="note"></p>
+          <div class="btn-row">
+            <button type="button" id="trust-confirm" class="btn btn-primary">Trust</button>
+            <button type="button" id="trust-cancel" class="btn">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section aria-label="Recent activity">
+      <h2>Recent activity</h2>
+      <ul id="activity-list" class="activity"></ul>
+      <p id="activity-empty" class="empty" hidden>Nothing blocked yet on this browser.</p>
+    </section>
+
+    <footer class="foot">
+      <div id="hidden-info" class="hidden-info" hidden>
+        <span id="hidden-count"></span>
+        <button type="button" id="btn-show-all" class="link">Show all</button>
+      </div>
+      <button type="button" id="btn-dashboard" class="link link-strong">Open dashboard</button>
+    </footer>
+    <div id="status" class="toast" role="status" aria-live="polite"></div>
+  </main>
+  <script src="popup.js"></script>
+</body>
+</html>
