@@ -1,0 +1,15 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+.idea/
+.vscode/
+
+# build output
+dist/
+*.zip
+
+# node (only used for the local test runner)
+node_modules/
+npm-debug.log*
